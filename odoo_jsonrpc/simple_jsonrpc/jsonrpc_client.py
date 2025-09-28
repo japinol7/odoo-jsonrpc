@@ -81,13 +81,13 @@ class JsonRpcClient:
             return self._connection.execute_kw(
                 self._server.dbname, self._uid, self._server.password,
                 model_obj_name,
-                method, args,
+                method, args or [],
                 )
 
         return self._connection.execute_kw(
             self._server.dbname, self._uid, self._server.password,
             model_obj_name,
-            method, args, kwargs or {},
+            method, args or [], kwargs or {},
             )
 
     def create(self, model_obj_name, values):
