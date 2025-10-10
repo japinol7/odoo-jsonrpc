@@ -50,13 +50,13 @@ class JsonRpcConnection:
         req = urllib.request.Request(
             url=self._url_root,
             data=json.dumps(data).encode(),
-            timeout=self.timeout,
             headers={
                 "Content-Type": "application/json",
                 },
             )
 
-        reply = json.loads(urllib.request.urlopen(req).read().decode('UTF-8'))
+        reply = json.loads(urllib.request.urlopen(
+            req, timeout=self.timeout).read().decode('UTF-8'))
 
         if reply.get('error'):
             raise Exception(reply['error'])
