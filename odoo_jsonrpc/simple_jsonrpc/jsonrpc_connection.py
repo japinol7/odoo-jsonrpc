@@ -4,7 +4,7 @@ import json
 import random
 import urllib.request
 
-from .config import PORTS_TO_ACTIVATE_SSL
+from .config import PORTS_TO_ACTIVATE_SSL, TIMEOUT_DEFAULT_SEC
 from .exceptions import UserError
 from ..tools.logger.logger import log
 
@@ -17,6 +17,7 @@ class JsonRpcConnection:
         self._url_root = None
         self.uid = None
         self.ssl = True if server.port in PORTS_TO_ACTIVATE_SSL else False
+        self.timeout = server.timeout or TIMEOUT_DEFAULT_SEC
         self._is_proxy_set = False
         self._connect()
 
@@ -49,6 +50,7 @@ class JsonRpcConnection:
         req = urllib.request.Request(
             url=self._url_root,
             data=json.dumps(data).encode(),
+            timeout=self.timeout,
             headers={
                 "Content-Type": "application/json",
                 },
