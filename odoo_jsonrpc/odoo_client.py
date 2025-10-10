@@ -6,7 +6,8 @@ from collections import namedtuple
 from .simple_jsonrpc import JsonRpcClient, JsonRpcConnection
 
 ServerConfig = namedtuple(
-    "ServerConfig", "host dbname username password port proxy_url timeout"
+    "ServerConfig",
+    "host dbname username password port proxy_url timeout"
     )
 
 

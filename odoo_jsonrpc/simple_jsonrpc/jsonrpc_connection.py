@@ -23,20 +23,23 @@ class JsonRpcConnection:
 
     def call(self, service, method, *args):
         return self._json_rpc(
-            'call',
-            {'service': service, 'method': method, 'args': args},
+            'call', {
+                'service': service, 'method': method, 'args': args,
+                },
             )
 
     def execute(self, *args):
         return self._json_rpc(
-            'call',
-            {'service': 'object', 'method': 'execute', 'args': args},
+            'call', {
+                'service': 'object', 'method': 'execute', 'args': args,
+                },
             )
 
     def execute_kw(self, *args):
         return self._json_rpc(
-            'call',
-            {'service': 'object', 'method': 'execute_kw', 'args': args},
+            'call', {
+                'service': 'object', 'method': 'execute_kw', 'args': args,
+                },
             )
 
     def _json_rpc(self, method, params):
