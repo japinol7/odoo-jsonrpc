@@ -64,7 +64,7 @@ class JsonRpcConnection:
         if reply.get('error'):
             raise Exception(reply['error'])
 
-        return reply['result']
+        return reply.get('result')
 
     def _set_proxy(self):
         log.debug(f"Setting proxy to: {self.server.proxy_url}")
