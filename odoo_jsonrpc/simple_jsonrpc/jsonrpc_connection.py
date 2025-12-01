@@ -16,10 +16,18 @@ class JsonRpcConnection:
         self.server = server
         self._url_root = None
         self.uid = None
-        self.ssl = True if server.port in PORTS_TO_ACTIVATE_SSL else False
+        self.ssl = self._is_ssl(server)
         self.timeout = server.timeout or TIMEOUT_DEFAULT_SEC
         self._is_proxy_set = False
         self._connect()
+
+    @staticmethod
+    def _is_ssl(server):
+        """Allows overriding SSL port-based default using an explicit flag in the server config."""
+        if server.ssl is None:
+            return True if server.port in PORTS_TO_ACTIVATE_SSL else False
+
+        return True if server.ssl is True else False
 
     def call(self, service, method, *args):
         return self._json_rpc(
