@@ -4,9 +4,14 @@ import json
 import random
 import urllib.request
 
-from .config import PORTS_TO_ACTIVATE_SSL, TIMEOUT_DEFAULT_SEC
-from .exceptions import UserError
+from .config import (
+    CLIENT_NAME,
+    PORTS_TO_ACTIVATE_SSL,
+    TIMEOUT_DEFAULT_SEC,
+    )
+from .exceptions import OdooJsonRpcError
 from ..tools.logger.logger import log
+from ..version.version import VERSION
 
 
 class JsonRpcConnection:
@@ -23,7 +28,9 @@ class JsonRpcConnection:
 
     @staticmethod
     def _is_ssl(server):
-        """Allows overriding SSL port-based default using an explicit flag in the server config."""
+        """Allows overriding SSL port-based default using an explicit flag
+        in the server config.
+        """
         if server.ssl is None:
             return True if server.port in PORTS_TO_ACTIVATE_SSL else False
 
@@ -63,6 +70,7 @@ class JsonRpcConnection:
             data=json.dumps(data).encode(),
             headers={
                 "Content-Type": "application/json",
+                "User-Agent": f"odoo-jsonrpc/{VERSION}",
                 },
             )
 
@@ -75,7 +83,7 @@ class JsonRpcConnection:
         return reply.get('result')
 
     def _set_proxy(self):
-        log.debug(f"Setting proxy to: {self.server.proxy_url}")
+        log.debug(f"{CLIENT_NAME}: Setting proxy to: {self.server.proxy_url}")
         proxy_support = urllib.request.ProxyHandler(
             {'http': '%s' % self.server.proxy_url,
              'https': '%s' % self.server.proxy_url,
@@ -85,20 +93,19 @@ class JsonRpcConnection:
         self._is_proxy_set = True
 
     def _connect(self):
-        log.info(f'Connecting to {self.server.host} ({self.server.dbname}) '
-                 f'as {self.server.username}')
+        log.info(f"{CLIENT_NAME}: Connecting to "
+                 f"{self.server.host} ({self.server.dbname}) "
+                 f"as {self.server.username}")
 
         if not self._is_proxy_set and self.server.proxy_url:
             self._set_proxy()
 
-        if self.ssl:
-            self._url_root = "https://%s:%s/jsonrpc/" % (self.server.host, self.server.port)
-        else:
-            self._url_root = "http://%s:%s/jsonrpc/" % (self.server.host, self.server.port)
+        protocol = "https" if self.ssl else "http"
+        self._url_root = f"{protocol}://{self.server.host}:{self.server.port}/jsonrpc/"
 
         self.uid = self.call(
             'common', 'login',
             self.server.dbname, self.server.username, self.server.password)
 
         if not self.uid:
-            raise UserError("Wrong username or password!")
+            raise OdooJsonRpcError("Wrong username or password!")
