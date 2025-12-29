@@ -69,7 +69,7 @@ class JsonRpcConnection:
             url=self._url_root,
             data=json.dumps(data).encode(),
             headers={
-                "Content-Type": "application/json",
+                "Content-Type": "application/json; charset=utf-8",
                 "User-Agent": f"odoo-jsonrpc/{VERSION}",
                 },
             )
